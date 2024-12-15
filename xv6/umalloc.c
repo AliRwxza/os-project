@@ -6,7 +6,9 @@
 // Memory allocator by Kernighan and Ritchie,
 // The C programming Language, 2nd ed.  Section 8.7.
 
-typedef long Align;
+typedef long Align; // never used, just align on a worst-case scenario: long (arbitrary)
+#define NALLOC 4096 // minimum #units to request sbrk()
+#define MAX_ALLOC 10240
 
 union header {
   struct {
@@ -18,24 +20,27 @@ union header {
 
 typedef union header Header;
 
-static Header base;
-static Header *freep;
+static Header base;         // empty list to get started
+static Header *freep;       // start of the free list
+static uint allocated = 0;
 
 void
 free(void *ap)
 {
   Header *bp, *p;
 
-  bp = (Header*)ap - 1;
+  bp = (Header*)ap - 1; // equivalent to(?): ap - sizeof(Header)
   for(p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
     if(p >= p->s.ptr && (bp > p || bp < p->s.ptr))
       break;
   if(bp + bp->s.size == p->s.ptr){
+    allocated -= p->s.ptr->s.size;    // ??
     bp->s.size += p->s.ptr->s.size;
     bp->s.ptr = p->s.ptr->s.ptr;
   } else
     bp->s.ptr = p->s.ptr;
   if(p + p->s.size == bp){
+    allocated -= bp->s.size;          // ??
     p->s.size += bp->s.size;
     p->s.ptr = bp->s.ptr;
   } else
@@ -49,10 +54,10 @@ morecore(uint nu)
   char *p;
   Header *hp;
 
-  if(nu < 4096)
-    nu = 4096;
+  if(nu < NALLOC)
+    nu = NALLOC;
   p = sbrk(nu * sizeof(Header));
-  if(p == (char*)-1)
+  if(p == (char*)-1)    // no space
     return 0;
   hp = (Header*)p;
   hp->s.size = nu;
@@ -67,6 +72,12 @@ malloc(uint nbytes)
   uint nunits;
 
   nunits = (nbytes + sizeof(Header) - 1)/sizeof(Header) + 1;
+
+  if(allocated + nbytes > MAX_ALLOC) {
+    printf(1, "testing:\t%d\nAllocated:\t%d\nMax memory:\t%d\nNeeded: \t%d\n", getyear(), allocated, MAX_ALLOC, nbytes);
+    return 0;
+  }
+
   if((prevp = freep) == 0){
     base.s.ptr = freep = prevp = &base;
     base.s.size = 0;

@@ -89,3 +89,9 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+// def syscall
+int
+sys_getyear(void)
+{
+  return 1975;
+}
