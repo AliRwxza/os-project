@@ -58,10 +58,10 @@ struct proc*
 myproc(void) {
   struct cpu *c;
   struct proc *p;
-  pushcli();      // turn the interrupts off
+  pushcli();
   c = mycpu();
   p = c->proc;
-  popcli();       // turn the interrupts on
+  popcli();
   return p;
 }
 
@@ -88,9 +88,6 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  
-  p->memory_quota = 1024;
-  p->memory_usage = 0;
 
   release(&ptable.lock);
 
@@ -328,7 +325,6 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  // inja
   
   for(;;){
     // Enable interrupts on this processor.
@@ -343,6 +339,7 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      // tick;
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;

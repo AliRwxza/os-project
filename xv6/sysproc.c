@@ -89,3 +89,28 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+// returns 0 if successful, and -1 otherwise
+int sys_set_limit(void) {
+    int cpu_quota, memory_quota;
+    if (argint(0, &cpu_quota) < 0 || argint(1, &memory_quota) < 0)
+        return -1;
+
+    struct proc *p = myproc();
+    p->memory_quota = memory_quota;  // store the memory quota
+    return 0;
+}
+
+// returns 0 if successful, and -1 otherwise
+int sys_increase_memory_usage(void) {
+    int amount;
+    if (argint(0, &amount) == 0)
+        return -1;
+
+    struct proc *p = myproc();
+    if (p->memory_usage + amount > p->memory_quota) // check against quota
+        return -1;
+
+    p->memory_usage += amount;
+    // p->memory_usage = (p->memory_usage >= 0) ? p->memory_usage : 0;
+    return 0;
+}

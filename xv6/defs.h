@@ -155,6 +155,9 @@ int             argstr(int, char**);
 int             fetchint(uint, int*);
 int             fetchstr(uint, char**);
 void            syscall(void);
+// phase 1, memory
+int             sys_set_limit(void);
+int             sys_increase_memory_usage(void);
 
 // timer.c
 void            timerinit(void);
