@@ -23,8 +23,9 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int getyear(void);
 // injiz
+int set_limit(int, int);
+int increase_memory_usage(int);
 // ulib.c
 int stat(const char*, struct stat*);
 char* strcpy(char*, const char*);

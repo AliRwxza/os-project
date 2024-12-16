@@ -49,6 +49,9 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  int memory_quota;            // Memory limit for malloc
+  int memory_usage;            // Memory used so far
+  int cpu_quota;
 };
 
 // Process memory is laid out contiguously, low addresses first:

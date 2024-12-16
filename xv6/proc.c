@@ -58,10 +58,10 @@ struct proc*
 myproc(void) {
   struct cpu *c;
   struct proc *p;
-  pushcli();
+  pushcli();      // turn the interrupts off
   c = mycpu();
   p = c->proc;
-  popcli();
+  popcli();       // turn the interrupts on
   return p;
 }
 
@@ -88,7 +88,10 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  // inja
+  
+  p->memory_quota = 1024;
+  p->memory_usage = 0;
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
